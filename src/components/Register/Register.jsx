@@ -11,6 +11,9 @@ const Register = () => {
 
     const [error, setError] = useState('')
     const [success, setSuccess] = useState('')
+
+
+
     const handleSubmit = (event) => {
         // 1. prevent page refresh
         event.preventDefault();
@@ -18,7 +21,7 @@ const Register = () => {
         // 2. collect form data
         const email = event.target.email.value;
         const password = event.target.password.value;
-        // const name = event.target.name.value;
+        const name = event.target.name.value;
         console.log(name, email, password)
         setError('')
         setSuccess('')
@@ -49,7 +52,7 @@ const Register = () => {
                 setSuccess('User has been created successfully')
                 event.target.reset();
                 sendVerifiedEmail(result.user)
-
+                updateUserDate(result.user, name)
             })
             .catch(error => {
                 console.log(error.message)
@@ -66,6 +69,18 @@ const Register = () => {
     }
 
 
+    // update profile
+const updateUserDate=(user, name)=>{
+    updateProfile(user, {
+        displayName: name
+    }).then(result=>{
+        alert('user name updated')
+    })
+    .catch(error=>{
+        setError(error.message)
+    })
+}
+
     const handleEmailChange = (event) => {
         setEmail(event.target.value);
         // setEmail(event.target.value);
@@ -79,7 +94,8 @@ const Register = () => {
         <div className='w-50 mx-auto'>
             <h4>Please Register</h4>
             <form onSubmit={handleSubmit}>
-
+                <input className='w-50 mb-4 rounded ps-2' type="text" name="name" id="name" placeholder='Your Name' required />
+                <br />
                 <input className='w-50 mb-4 rounded ps-2' onChange={handleEmailChange} type="email" name="email" id="email" placeholder='Your Email' required />
                 <br />
                 <input className='w-50 mb-4 rounded ps-2' onBlur={handlePasswordBlur} type="password" name="password" id="password" placeholder='Your Password' required />

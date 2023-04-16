@@ -1,19 +1,21 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import app from '../../firebase/firebase.config';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { getAuth, sendPasswordResetEmail, signInWithEmailAndPassword } from 'firebase/auth';
 
 const Login = () => {
     const [error, setError] = useState('')
     const [success, setSuccess] = useState('')
+    const emailRef = useRef()
+    const [showPassword, setShowPassword] = useState(false)
 
     const auth = getAuth()
     const handleLogin = event => {
         event.preventDefault();
-        console.log(event.target.value)
+        // console.log(event.target.value)
         const email = event.target.email.value
         const password = event.target.password.value
-        console.log(email, password)
+        // console.log(email, password)
 
         // validation
         setError('')
@@ -51,24 +53,59 @@ const Login = () => {
                 setError(error.message)
                 setSuccess('')
             });
+        event.target.reset()
     }
+
+    // emailRef ekhane use kora hoiche
+    const handleResetPassword = () => {
+        const email = emailRef.current.value
+        if (!email) {
+            alert('provide your mail address')
+            return
+        }
+
+        sendPasswordResetEmail(auth, email)
+            .then(() => {
+                alert('check your mail')
+            })
+            .catch((error) => {
+                console.log(error.message);
+
+            });
+    }
+
     return (
         <div className='w-25 mx-auto'>
             <h2>Please Login</h2>
             <form onSubmit={handleLogin}>
                 <div className="form-group mb-3">
                     <label htmlFor="email">Email address</label>
-                    <input type="email" name='email' className="form-control" id="email" aria-describedby="emailHelp" placeholder="Enter email" required />
+                    <input type="email" name='email' ref={emailRef} className="form-control" id="email" placeholder="Enter email" required />
 
                 </div>
-                <div className="form-group mb-3">
-                    <label htmlFor="password">Password</label>
-                    <input type="password" name='password' className="form-control" id="password" placeholder="Password" required />
-                </div>
+
+                {/**eye button toggle */}
+
+                {
+                    showPassword ?
+                        <div className="form-group mb-3">
+                            <label htmlFor="password">Password</label>
+                            <input type="text" name='password' className="form-control" id="password" placeholder="Password" required />
+                        </div>
+                        :
+                        <div className="form-group mb-3">
+                            <label htmlFor="password">Password</label>
+                            <input type="password" name='password' className="form-control" id="password" placeholder="Password" required />
+                        </div>
+                }
+                {/**eye button toggle */}
+
                 <div className="form-check mb-3">
                     <input type="checkbox" className="form-check-input" id="rememberMe" />
                     <label className="form-check-label" htmlFor="rememberMe">Remember me</label>
                 </div>
+                <p><button onClick={() => setShowPassword(!showPassword)} className="btn btn-link">Show Password</button></p>
+                <p><small>Forget Password? Please <button onClick={handleResetPassword} className="btn btn-link">Reset your Password</button></small></p>
                 <button type="submit" className="btn btn-primary">Submit</button>
             </form>
             <p><small>New to this site? Plz <Link to='/register'>Register</Link></small></p>
